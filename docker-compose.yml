@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: pizza_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db # persists data even if container restarts
+    networks:
+      - pizza-network
+
+  backend:
+    build: ./backend
+    container_name: pizza_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo # ensures mongo starts before backend
+    volumes:
+      - ./backend:/app # live reload — changes reflect without rebuild
+      - /app/node_modules # prevents host node_modules from overwriting container's
+    networks:
+      - pizza-network
+
+  frontend:
+    build: ./frontend
+    container_name: pizza_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - pizza-network
+
+volumes:
+  mongo-data:
+
+networks:
+  pizza-network:
+    driver: bridge
