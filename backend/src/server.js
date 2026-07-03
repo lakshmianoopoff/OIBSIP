@@ -17,6 +17,10 @@ const startServer = async () => {
     // Socket.io will be initialized here in Week 2
     // const initSocket = require('./sockets/orderSocket')
     // initSocket(server)
+    // Start cron jobs
+    const stockAlertJob = require('./jobs/stockAlert.cron')
+    stockAlertJob()
+
 
     server.listen(PORT, () => {
         console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`)
