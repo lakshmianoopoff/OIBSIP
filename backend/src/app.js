@@ -34,10 +34,8 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// Routes will be registered here as we build them
-// app.use('/api/v1/auth', require('./routes/auth.routes'))
-// app.use('/api/v1/pizza', require('./routes/pizza.routes'))
-// ...
+// Routes
+app.use('/api/v1/auth', require('./routes/auth.routes'))
 
 // Global error handler — must be last
 app.use(errorHandler)
