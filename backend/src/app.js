@@ -38,7 +38,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/v1/auth', require('./routes/auth.routes'))
 app.use('/api/v1/ingredients', require('./routes/ingredient.routes'))
 app.use('/api/v1/orders', require('./routes/order.routes'))
-
+app.use('/api/v1/admin', require('./routes/admin.routes'))
 // Global error handler — must be last
 app.use(errorHandler)
 

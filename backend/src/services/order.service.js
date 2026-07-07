@@ -1,3 +1,4 @@
+const { emitOrderStatusUpdate, emitNewOrderToAdmin } = require('../sockets/orderSocket')
 const crypto = require('crypto')
 const Order = require('../models/Order')
 const IngredientOption = require('../models/IngredientOption')
@@ -131,9 +132,53 @@ const verifyPaymentAndPlaceOrder = async ({
 
     // Decrease stock for all ingredients used
     await decreaseStock(order.items)
+    // Notify admin room of new order in real time
+    emitNewOrderToAdmin(order)
+
+    return order
+
+}
+
+
+const updateOrderStatus = async (orderId, status) => {
+    const validStatuses = ['placed', 'in_kitchen', 'out_for_delivery', 'delivered']
+
+    if (!validStatuses.includes(status)) {
+        const error = new Error('Invalid status value')
+        error.statusCode = 400
+        throw error
+    }
+
+    const order = await Order.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+    ).populate('userId', 'name email')
+
+    if (!order) {
+        const error = new Error('Order not found')
+        error.statusCode = 404
+        throw error
+    }
+
+    // Emit real-time update to the user who placed this order
+    emitOrderStatusUpdate(order.userId._id, orderId, status)
 
     return order
 }
+
+const getAllOrders = async (filters = {}) => {
+    const query = {}
+
+    // Filter by status if provided — e.g. ?status=in_kitchen
+    if (filters.status) query.status = filters.status
+
+    return await Order.find(query)
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+}
+
+
 
 // Get user's orders
 const getUserOrders = async (userId) => {
@@ -164,5 +209,12 @@ module.exports = {
     createRazorpayOrder,
     verifyPaymentAndPlaceOrder,
     getUserOrders,
-    getOrderById,
+    module.exports = {
+        createRazorpayOrder,
+        verifyPaymentAndPlaceOrder,
+        getUserOrders,
+        getOrderById,
+        updateOrderStatus,
+        getAllOrders,
+    }
 }
