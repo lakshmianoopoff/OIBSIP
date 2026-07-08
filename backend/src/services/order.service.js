@@ -141,41 +141,41 @@ const verifyPaymentAndPlaceOrder = async ({
 
 
 const updateOrderStatus = async (orderId, status) => {
-    const validStatuses = ['placed', 'in_kitchen', 'out_for_delivery', 'delivered']
+  const validStatuses = ['placed', 'in_kitchen', 'out_for_delivery', 'delivered']
 
-    if (!validStatuses.includes(status)) {
-        const error = new Error('Invalid status value')
-        error.statusCode = 400
-        throw error
-    }
+  if (!validStatuses.includes(status)) {
+    const error = new Error('Invalid status value')
+    error.statusCode = 400
+    throw error
+  }
 
-    const order = await Order.findByIdAndUpdate(
-        orderId,
-        { status },
-        { new: true }
-    ).populate('userId', 'name email')
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true }
+  ).populate('userId', 'name email')
 
-    if (!order) {
-        const error = new Error('Order not found')
-        error.statusCode = 404
-        throw error
-    }
+  if (!order) {
+    const error = new Error('Order not found')
+    error.statusCode = 404
+    throw error
+  }
 
-    // Emit real-time update to the user who placed this order
-    emitOrderStatusUpdate(order.userId._id, orderId, status)
+  // Emit real-time update to the user who placed this order
+  emitOrderStatusUpdate(order.userId._id, orderId, status)
 
-    return order
+  return order
 }
 
 const getAllOrders = async (filters = {}) => {
-    const query = {}
+  const query = {}
 
-    // Filter by status if provided — e.g. ?status=in_kitchen
-    if (filters.status) query.status = filters.status
+  // Filter by status if provided — e.g. ?status=in_kitchen
+  if (filters.status) query.status = filters.status
 
-    return await Order.find(query)
-        .populate('userId', 'name email')
-        .sort({ createdAt: -1 })
+  return await Order.find(query)
+    .populate('userId', 'name email')
+    .sort({ createdAt: -1 })
 }
 
 
@@ -206,15 +206,10 @@ const getOrderById = async (orderId, userId, userRole) => {
 }
 
 module.exports = {
-    createRazorpayOrder,
-    verifyPaymentAndPlaceOrder,
-    getUserOrders,
-    module.exports = {
-        createRazorpayOrder,
-        verifyPaymentAndPlaceOrder,
-        getUserOrders,
-        getOrderById,
-        updateOrderStatus,
-        getAllOrders,
-    }
+  createRazorpayOrder,
+  verifyPaymentAndPlaceOrder,
+  getUserOrders,
+  getOrderById,
+  updateOrderStatus,
+  getAllOrders,
 }
