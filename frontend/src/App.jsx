@@ -65,7 +65,3 @@ export default function App() {
   )
 }
 
-// Example — do this for every page file
-export default function Login() {
-  return <div>Login Page</div>
-}
